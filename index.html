@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Galaxy Mart Foods</title>
+<style>
+:root{
+  --bg:#1a0d05;--bg2:#1f1008;--bg3:#261408;--card:#231209;
+  --border:rgba(232,160,69,0.12);--border2:rgba(232,160,69,0.22);
+  --gold:#e8a045;--gold2:#f0b060;--gold3:rgba(232,160,69,0.5);
+  --text:#f5e6d0;--text2:#c8a882;--text3:#7a5c3c;
+  --success:#4caf82;--danger:#e05555;
+  --font-head:'Georgia',serif;--font-body:'Segoe UI',system-ui,sans-serif;
+  --radius:14px;--radius2:10px;--tr:0.18s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body)}
+.header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1a0d05,#261408);border-bottom:1px solid var(--border2);padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--gold)}
+.brand-sub{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.table-tag{background:rgba(232,160,69,0.1);border:1px solid var(--border2);color:var(--gold);font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px}
+.cat-bar{display:flex;gap:8px;padding:12px 16px 8px;overflow-x:auto;scrollbar-width:none;background:var(--bg2);border-bottom:1px solid var(--border)}
+.cat-bar::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:all var(--tr)}
+.cat-btn.active{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:16px}
+@media(max-width:400px){.menu-grid{grid-template-columns:1fr 1fr;gap:10px;padding:12px}}
+.food-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.food-img-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--bg3)}
+.food-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.food-card:hover .food-img-wrap img{transform:scale(1.05)}
+.oos-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:2}
+.oos-label{background:rgba(224,85,85,0.9);color:#fff;font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.8px}
+.food-info{padding:10px 10px 12px}
+.food-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3}
+.food-desc{font-size:11px;color:var(--text3);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.food-footer{display:flex;align-items:center;justify-content:space-between}
+.food-price{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--gold)}
+.add-btn{width:30px;height:30px;border-radius:50%;background:var(--gold);border:none;color:var(--bg);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--tr),transform .15s;flex-shrink:0}
+.add-btn:active{transform:scale(.88);background:var(--gold2)}
+.small-add{width:26px;height:26px;font-size:15px}
+.qty-ctrl{display:flex;align-items:center;gap:4px}
+.qty-btn{width:26px;height:26px;border-radius:50%;background:rgba(232,160,69,0.12);border:1px solid var(--border2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
+.qty-btn:active{background:var(--gold);color:var(--bg)}
+.qty-num{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--gold);min-width:18px;text-align:center}
+.size-controls{display:flex;flex-direction:column;gap:5px}
+.size-row{display:flex;align-items:center;justify-content:space-between}
+.size-lbl{font-size:11px;color:var(--text2);font-weight:600}
+.size-price{color:var(--gold);font-weight:700}
+.cart-fab{position:fixed;bottom:24px;right:20px;z-index:200;background:var(--gold);border:none;border-radius:28px;padding:14px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 6px 24px rgba(232,160,69,.35);transition:transform .2s,box-shadow .2s;font-family:var(--font-body)}
+.cart-fab:active{transform:scale(.95)}
+.cart-fab.bump{animation:bump .3s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.cart-fab.hidden{transform:translateY(90px)!important;pointer-events:none}
+.fab-icon{font-size:20px}
+.fab-label{font-size:13px;font-weight:700;color:var(--bg)}
+.fab-count{background:var(--bg);color:var(--gold);font-size:11px;font-weight:800;padding:2px 7px;border-radius:12px}
+.fab-total{font-size:13px;font-weight:800;color:var(--bg)}
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.cart-overlay.open{opacity:1;pointer-events:all}
+.cart-panel{position:fixed;bottom:0;left:0;right:0;z-index:301;background:var(--bg2);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.2,.64,1);max-height:88vh;display:flex;flex-direction:column}
+.cart-panel.open{transform:translateY(0)}
+.cart-drag{width:36px;height:4px;background:var(--border2);border-radius:4px;margin:12px auto 0}
+.cart-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.cart-title{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--gold)}
+.cart-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:4px}
+.cart-body{overflow-y:auto;flex:1;padding:12px 16px}
+.cart-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.ci-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.ci-price{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--gold);margin:0 10px;min-width:50px;text-align:right}
+.ci-rm{background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px}
+.cart-footer{padding:16px;border-top:1px solid var(--border)}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.total-lbl{font-size:14px;color:var(--text2)}
+.total-val{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--gold)}
+.tbl-wrap label{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.tbl-input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:15px;padding:11px 14px;border-radius:var(--radius2);font-family:var(--font-body);outline:none;margin-bottom:12px;transition:border-color var(--tr)}
+.tbl-input:focus{border-color:var(--gold3)}
+.place-btn{width:100%;background:var(--gold);border:none;color:var(--bg);font-size:15px;font-weight:700;padding:15px;border-radius:var(--radius2);cursor:pointer;font-family:var(--font-body);transition:background var(--tr),transform .15s}
+.place-btn:active{transform:scale(.98);background:var(--gold2)}
+.place-btn:disabled{opacity:.5;pointer-events:none}
+.success-screen{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;opacity:0;pointer-events:none;transform:scale(.94);transition:opacity .35s,transform .35s}
+.success-screen.show{opacity:1;pointer-events:all;transform:none}
+.success-icon{font-size:72px;margin-bottom:24px;animation:popIn .4s ease .1s both}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--gold);margin-bottom:10px}
+.success-sub{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:32px}
+.success-back{background:var(--gold);border:none;color:var(--bg);font-size:15px;font-weight:700;padding:15px 40px;border-radius:var(--radius2);cursor:pointer;font-family:var(--font-body)}
+.page-loader{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .4s}
+.page-loader.gone{opacity:0;pointer-events:none}
+.loader-ring{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-brand{font-family:var(--font-head);font-size:20px;color:var(--gold)}
+.empty-msg{padding:60px 24px;text-align:center;color:var(--text3);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="page-loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-brand">Galaxy Mart Foods</div>
+</div>
+
+<div class="header">
+  <div>
+    <div class="brand">Galaxy Mart Foods</div>
+    <div class="brand-sub">Fresh · Hot · Delicious</div>
+  </div>
+  <div class="table-tag" id="hdr-table">Select Table</div>
+</div>
+
+<div class="cat-bar" id="cat-bar"></div>
+<div class="menu-grid" id="menu-grid"></div>
+
+<button class="cart-fab hidden" id="cart-fab" onclick="openCart()">
+  <span class="fab-icon">🛒</span>
+  <span class="fab-label">Order</span>
+  <span class="fab-count" id="fab-count">0</span>
+  <span class="fab-total" id="fab-total">₹0</span>
+</button>
+
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-drag"></div>
+  <div class="cart-head">
+    <span class="cart-title">Your Order</span>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body"></div>
+  <div class="cart-footer">
+    <div class="total-row">
+      <span class="total-lbl">Total</span>
+      <span class="total-val" id="cart-total">₹0</span>
+    </div>
+    <div class="tbl-wrap">
+      <label>Table Number</label>
+      <input class="tbl-input" id="tbl-num" type="number" min="1" max="99" placeholder="Enter your table number">
+    </div>
+    <button class="place-btn" id="place-btn" onclick="placeOrder()">Place Order →</button>
+  </div>
+</div>
+
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Order Placed!</div>
+  <div class="success-sub" id="success-sub"></div>
+  <button class="success-back" onclick="closeSuccess()">Order More →</button>
+</div>
+
+<script>
+var BIN_ID='69c6571cb7ec241ddcab854e';
+var BIN_SECRET='$2a$10$mG321MWWbqOYgKs79d3YvePDUEUiOZSpLBgs2wtGnVpIbRmr0RSwu';
+var BIN_URL='https://api.jsonbin.io/v3/b/'+BIN_ID;
+var SHEET_URL='https://script.google.com/macros/s/AKfycbyOKhk0OrPCmwLB5V_EpT3A13LeHfLnclkyH5Gy-yQ1EfTWsW00fWLQy9cq2OPQ_lrOdQ/exec';
+
+async function apiGet(){try{var r=await fetch(BIN_URL+'/latest?t='+Date.now(),{cache:'no-store',headers:{'X-Master-Key':BIN_SECRET,'X-Bin-Versioning':'false','Cache-Control':'no-cache'}});var d=await r.json();return Array.isArray(d.record)?d.record.filter(function(o){return!o.init;}):[]}catch(e){return[]}}
+async function apiPut(data){await fetch(BIN_URL,{method:'PUT',cache:'no-store',headers:{'Content-Type':'application/json','X-Master-Key':BIN_SECRET,'X-Bin-Versioning':'false'},body:JSON.stringify(data)})}
+
+var MENU=[
+  {id:1,name:'Veg Momos',desc:'Steamed veg dumplings served with spicy chutney',cat:'momos',img:'https://i.postimg.cc/MK5hzkBf/fec3b34d5edb094554ed761c0d6f9d17.jpg',sizes:{half:20,full:40}},
+  {id:2,name:'Paneer Momos',desc:'Soft dumplings stuffed with spiced paneer filling',cat:'momos',img:'https://i.postimg.cc/MK5hzkBf/fec3b34d5edb094554ed761c0d6f9d17.jpg',sizes:{half:30,full:60}},
+  {id:3,name:'Veg Kurkur Momos',desc:'Extra crispy fried veg momos with tangy dip',cat:'momos',img:'https://i.postimg.cc/bJ1BM48v/de407313b6300004594b4222eb5edab0.jpg',sizes:{half:60,full:100}},
+  {id:4,name:'Paneer Kurkur Momos',desc:'Crunchy fried momos packed with rich paneer',cat:'momos',img:'https://i.postimg.cc/bJ1BM48v/de407313b6300004594b4222eb5edab0.jpg',sizes:{half:70,full:120}},
+  {id:5,name:'Chilly Gravy Momos',desc:'Momos tossed in spicy Indo-Chinese chilly gravy',cat:'momos',img:'https://i.postimg.cc/43VPNt0F/84227fceb69298a49ab6cd24811704af.jpg',sizes:{half:70,full:120}},
+  {id:6,name:'Veg Noodles',desc:'Stir-fried hakka noodles with fresh vegetables',cat:'noodles',img:'https://i.postimg.cc/tg3dHbZR/3df666e4702aa9c7c6ab9c299a672131.jpg',sizes:{half:20,full:30}},
+  {id:7,name:'Spl. Noodles',desc:"Special loaded noodles with chef's secret sauce",cat:'noodles',img:'https://i.postimg.cc/pL8zDvBG/3b3357e75c65a42570dc704fa77f45cc.jpg',sizes:{half:30,full:50}},
+  {id:8,name:'French Fry',desc:'Golden crispy potato fries lightly salted',cat:'noodles',img:'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80',sizes:{half:20,full:40}},
+  {id:9,name:'Plane Grill Pizza',desc:'Classic grilled pizza with tomato sauce and cheese',cat:'pizza',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80',sizes:{small:60,large:90}},
+  {id:10,name:'Double Cheese Pizza',desc:'Extra cheesy pizza loaded with mozzarella',cat:'pizza',img:'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400&q=80',sizes:{small:70,large:100}},
+  {id:11,name:'Paneer Grilled Pizza',desc:'Grilled pizza topped with spiced paneer chunks',cat:'pizza',img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',sizes:{small:80,large:130}},
+  {id:12,name:'Special Panjabi Tadka',desc:'Punjabi masala twist pizza with rich spiced topping',cat:'pizza',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80',sizes:{small:90,large:150}},
+  {id:13,name:'Plane Grill Burger',desc:'Simple grilled patty burger with fresh veggies',cat:'burger',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',price:40},
+  {id:14,name:'Cheeses Grill Burger',desc:'Grilled burger loaded with melted cheese slices',cat:'burger',img:'https://i.postimg.cc/TPfLgDwF/61077a431cc9fe700d684e97347bb286.jpg',price:50},
+  {id:15,name:'Paneer Grill Burger',desc:'Juicy grilled paneer burger with mint mayo',cat:'burger',img:'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=400&q=80',price:60},
+  {id:16,name:'Double Tikki Burger',desc:'Double patty burger packed with extra flavour',cat:'burger',img:'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&q=80',price:70},
+  {id:17,name:'Plane Grill Sandwich',desc:'Classic toasted sandwich with fresh fillings',cat:'sandwich',img:'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&q=80',price:40},
+  {id:18,name:'Cheeses Grill Sandwich',desc:'Grilled sandwich oozing with melted cheese',cat:'sandwich',img:'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&q=80',price:50},
+  {id:19,name:'Paneer Grill Sandwich',desc:'Toasted sandwich stuffed with spiced paneer',cat:'sandwich',img:'https://i.postimg.cc/N0sF5vCs/c9eb694c3d4c0fd52bddf1537fe3a09f.jpg',price:60},
+  {id:20,name:'Double Tikki Sandwich',desc:'Double-filled sandwich for the hungry ones',cat:'sandwich',img:'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?w=400&q=80',price:70},
+  {id:21,name:'Maggi',desc:'Classic Maggi noodles cooked to perfection',cat:'snacks',img:'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400&q=80',price:50},
+  {id:22,name:'Manchurian',desc:'Crispy veggie balls in tangy Manchurian gravy',cat:'snacks',img:'https://i.postimg.cc/pdWYQTLv/5867000ad345c7adc83e3bb01c7efc97.jpg',sizes:{half:70,full:120}},
+  {id:23,name:'Chilli Potato',desc:'Spicy Indo-Chinese fried potato tossed in sauce',cat:'snacks',img:'https://i.postimg.cc/65xZL3Hw/ad826dd0b1ff18835abca10253734dee.jpg',sizes:{half:50,full:90}},
+  {id:24,name:'Honey Chilli Potato',desc:'Sweet and spicy honey-glazed crispy potato',cat:'snacks',img:'https://i.postimg.cc/mDMDt3Ws/7e7673aff1ce44e4ca56a55a192a2a70.jpg',sizes:{half:60,full:100}},
+  {id:25,name:'Chilli Mashroom',desc:'Button mushrooms tossed in fiery chilli sauce',cat:'snacks',img:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80',sizes:{half:90,full:160}},
+  {id:26,name:'Chilli Chap',desc:'Crispy chap tossed in spiced chilly masala',cat:'snacks',img:'https://i.postimg.cc/nLmZkHRY/59bbda0c9886b3183968a6b369aef53f.jpg',sizes:{half:90,full:160}},
+  {id:27,name:'Chilli Paneer',desc:'Cottage cheese cubes in bold chilly sauce',cat:'snacks',img:'https://i.postimg.cc/C143Pdjv/0df1ae2879042deee637cee2c7a08ef0.jpg',sizes:{half:90,full:160}},
+  {id:28,name:'Spring Roll',desc:'Golden crispy rolls with veggie stuffing',cat:'snacks',img:'https://i.postimg.cc/QMJYswVY/ac8a8dabdfe2b99f271d0ee9ef0de186.jpg',price:20},
+  {id:29,name:'Veg Kathi Roll',desc:'Spiced veggies in a soft paratha with chutney & onions',cat:'snacks',img:'https://i.postimg.cc/0jT070b3/481e9c86ec2f1d7fa4b10ac2c9ded2e3.jpg',price:50},
+  {id:30,name:'Chap Kathi Roll',desc:'Flavourful chap wrapped in a soft paratha with chutneys',cat:'snacks',img:'https://i.postimg.cc/nLhSFT7k/459ba9c424fc5c54d3d8b95fd828ade2.jpg',price:60},
+  {id:31,name:'Paneer Kathi Roll',desc:'Spiced paneer wrapped in a grilled paratha with chutney',cat:'snacks',img:'https://i.postimg.cc/x8v3ybHZ/443e3eb28ee9315ab961787df489e30d.jpg',price:60},
+  {id:32,name:'Mashroom Kathi Roll',desc:'Juicy mushroom filling in a crispy paratha roll',cat:'snacks',img:'https://i.postimg.cc/nLhSFT7k/459ba9c424fc5c54d3d8b95fd828ade2.jpg',price:60},
+];
+
+var CATS=['all','momos','noodles','pizza','burger','sandwich','snacks'];
+var CAT_LBL={all:'All',momos:'Momos',noodles:'Noodles',pizza:'Pizza',burger:'Burger',sandwich:'Sandwich',snacks:'Snacks'};
+var SZ_LBL={half:'Half',full:'Full',small:'Sm',large:'Lg',Half:'Half',Full:'Full',Small:'Small',Large:'Large'};
+var cart={};var currentCat='all';var overrides={};var customItems=[];
+
+function loadOv(){try{overrides=JSON.parse(localStorage.getItem('gmf_overrides')||'{}')}catch(e){}try{customItems=JSON.parse(localStorage.getItem('gmf_custom')||'[]')}catch(e){}}
+function allItems(){return MENU.concat(customItems)}
+function getP(item,sz){var ov=overrides[item.id]||{};if(sz)return ov['price_'+sz]!==undefined?ov['price_'+sz]:item.sizes[sz];return ov.price!==undefined?ov.price:item.price}
+function ok(item){var ov=overrides[item.id]||{};return ov.inStock!==false}
+function cKey(id,sz){return sz?id+'_'+sz:String(id)}
+
+function renderCats(){
+  document.getElementById('cat-bar').innerHTML=CATS.map(function(c){
+    return'<button class="cat-btn'+(c===currentCat?' active':'')+'" onclick="setCat(\''+c+'\')">'+CAT_LBL[c]+'</button>';
+  }).join('');
+}
+function setCat(c){currentCat=c;renderCats();renderMenu()}
+
+function renderMenu(){
+  loadOv();
+  var grid=document.getElementById('menu-grid');
+  var items=allItems().filter(function(m){return currentCat==='all'||m.cat===currentCat});
+  if(!items.length){grid.innerHTML='<div class="empty-msg">No items here yet.</div>';return}
+  grid.innerHTML='';
+  items.forEach(function(item,i){
+    var good=ok(item);
+    var card=document.createElement('div');
+    card.className='food-card';card.style.animationDelay=(i*.04)+'s';
+    var img='<div class="food-img-wrap">'+(!good?'<div class="oos-overlay"><span class="oos-label">OUT OF STOCK</span></div>':'')+'<img src="'+item.img+'" alt="'+item.name+'" loading="lazy" onerror="this.style.opacity=0"></div>';
+    if(item.sizes){
+      var keys=Object.keys(item.sizes);
+      var rows=keys.map(function(sz){
+        var p=getP(item,sz);var qty=cart[cKey(item.id,sz)]||0;var lbl=SZ_LBL[sz]||sz;
+        if(!good)return'<div class="size-row"><span class="size-lbl">'+lbl+' <span class="size-price">₹'+p+'</span></span><span style="color:var(--danger);font-size:10px">—</span></div>';
+        if(qty===0)return'<div class="size-row"><span class="size-lbl">'+lbl+' <span class="size-price">₹'+p+'</span></span><button class="add-btn small-add" onclick="add('+item.id+',\''+sz+'\')">+</button></div>';
+        return'<div class="size-row"><span class="size-lbl">'+lbl+' <span class="size-price">₹'+p+'</span></span><div class="qty-ctrl"><button class="qty-btn" onclick="rm('+item.id+',\''+sz+'\')">−</button><span class="qty-num">'+qty+'</span><button class="qty-btn" onclick="add('+item.id+',\''+sz+'\')">+</button></div></div>';
+      }).join('');
+      card.innerHTML=img+'<div class="food-info"><div class="food-name">'+item.name+'</div><div class="food-desc">'+item.desc+'</div><div class="size-controls">'+rows+'</div></div>';
+    }else{
+      var p=getP(item,null);var qty=cart[cKey(item.id,null)]||0;
+      var ctrl=!good?'<span style="font-size:11px;color:var(--danger);font-weight:700">Unavailable</span>':qty===0?'<button class="add-btn" onclick="add('+item.id+',null)">+</button>':'<div class="qty-ctrl"><button class="qty-btn" onclick="rm('+item.id+',null)">−</button><span class="qty-num">'+qty+'</span><button class="qty-btn" onclick="add('+item.id+',null)">+</button></div>';
+      card.innerHTML=img+'<div class="food-info"><div class="food-name">'+item.name+'</div><div class="food-desc">'+item.desc+'</div><div class="food-footer"><span class="food-price">₹'+p+'</span>'+ctrl+'</div></div>';
+    }
+    grid.appendChild(card);
+  });
+}
+
+function add(id,sz){var item=allItems().find(function(m){return m.id===id});if(!item||!ok(item))return;var k=cKey(id,sz);cart[k]=(cart[k]||0)+1;syncFAB();renderMenu();var f=document.getElementById('cart-fab');f.classList.remove('bump');void f.offsetWidth;f.classList.add('bump')}
+function rm(id,sz){var k=cKey(id,sz);if(cart[k]>1)cart[k]--;else delete cart[k];syncFAB();renderMenu()}
+function cnt(){return Object.values(cart).reduce(function(s,v){return s+v},0)}
+function tot(){return Object.entries(cart).reduce(function(s,e){var p=e[0].split('_');var id=parseInt(p[0]);var sz=p[1]||null;var item=allItems().find(function(m){return m.id===id});return item?s+getP(item,sz)*e[1]:s},0)}
+function syncFAB(){var c=cnt(),t=tot(),fab=document.getElementById('cart-fab');fab.classList.toggle('hidden',c===0);document.getElementById('fab-count').textContent=c;document.getElementById('fab-total').textContent='₹'+t;var tbl=document.getElementById('tbl-num').value;document.getElementById('hdr-table').textContent=tbl?'Table '+tbl:'Select Table'}
+
+function openCart(){document.getElementById('cart-overlay').classList.add('open');document.getElementById('cart-panel').classList.add('open');renderCartBody()}
+function closeCart(){document.getElementById('cart-overlay').classList.remove('open');document.getElementById('cart-panel').classList.remove('open')}
+function renderCartBody(){
+  var body=document.getElementById('cart-body');
+  var entries=Object.entries(cart);
+  if(!entries.length){body.innerHTML='<div class="empty-msg">Nothing added yet!</div>';return}
+  body.innerHTML=entries.map(function(e){
+    var p=e[0].split('_');var id=parseInt(p[0]);var sz=p[1]||null;var item=allItems().find(function(m){return m.id===id});if(!item)return'';
+    var price=getP(item,sz);var nm=item.name+(sz?' ('+(SZ_LBL[sz]||sz)+')':'');
+    return'<div class="cart-item"><span class="ci-name">'+e[1]+'× '+nm+'</span><span class="ci-price">₹'+(price*e[1])+'</span><button class="ci-rm" onclick="rmItem(\''+e[0]+'\')">✕</button></div>';
+  }).join('');
+  document.getElementById('cart-total').textContent='₹'+tot();
+}
+function rmItem(k){delete cart[k];syncFAB();renderMenu();renderCartBody();if(!cnt())closeCart()}
+
+var ordering=false;
+async function placeOrder(){
+  if(ordering)return;
+  var tblEl=document.getElementById('tbl-num');var tbl=tblEl.value.trim();
+  if(!tbl){tblEl.focus();tblEl.style.borderColor='var(--danger)';setTimeout(function(){tblEl.style.borderColor=''},1500);return}
+  if(!cnt())return;
+  ordering=true;var btn=document.getElementById('place-btn');btn.textContent='Placing…';btn.disabled=true;
+  var szL={half:'Half',full:'Full',small:'Small',large:'Large'};
+  var items=Object.entries(cart).map(function(e){var p=e[0].split('_');var id=parseInt(p[0]);var sz=p[1]||null;var item=allItems().find(function(m){return m.id===id});var price=getP(item,sz);return{name:item.name+(sz?' ('+(szL[sz]||sz)+')':''),qty:e[1],price:price,size:sz}});
+  var total=tot();var orderNum='ORD-'+Date.now().toString(36).toUpperCase();var ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  var order={orderNum:orderNum,tableNumber:tbl,items:items,total:total,status:'pending',timestamp:ts,placedAt:new Date().toISOString()};
+  try{
+    var ex=await apiGet();ex.push(order);await apiPut(ex);
+    try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(order)})}catch(e){}
+    cart={};syncFAB();renderMenu();closeCart();
+    document.getElementById('success-sub').innerHTML='Order <strong>'+orderNum+'</strong> placed for Table <strong>'+tbl+'</strong>!<br>Total: <strong>₹'+total+'</strong><br><br>Your food is on the way 🍽️';
+    document.getElementById('success-screen').classList.add('show');
+  }catch(e){alert('Failed to place order. Please try again.')}
+  btn.textContent='Place Order →';btn.disabled=false;ordering=false;
+}
+function closeSuccess(){document.getElementById('success-screen').classList.remove('show');document.getElementById('tbl-num').value='';document.getElementById('hdr-table').textContent='Select Table'}
+
+window.addEventListener('storage',function(e){if(e.key==='gmf_overrides'||e.key==='gmf_custom'){loadOv();renderMenu()}});
+renderCats();renderMenu();
+setTimeout(function(){document.getElementById('loader').classList.add('gone')},500);
+</script>
+</body>
+</html>
