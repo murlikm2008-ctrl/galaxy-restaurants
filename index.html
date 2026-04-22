@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Restaurant Menu</title>
+  <link rel="manifest" href="./manifest.json">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #15090a;
+      --bg-soft: #231112;
+      --card: #2c1516;
+      --card-2: #35191b;
+      --gold: #eda34c;
+      --gold-soft: #f4cd87;
+      --text: #f8ead4;
+      --muted: #c49f78;
+      --muted-2: #8d7260;
+      --ok: #56a07c;
+      --danger: #df5f5f;
+      --line: rgba(237, 163, 76, 0.18);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(237, 163, 76, 0.15), transparent 30%),
+        linear-gradient(180deg, #140809 0%, #1d0d0f 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 16px 160px;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(237, 163, 76, 0.12), rgba(53, 25, 27, 0.92));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1;
+      color: var(--gold);
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+      line-height: 1.6;
+    }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .toolbar input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px 14px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--text);
+      outline: none;
+    }
+    .status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .status strong {
+      color: var(--gold-soft);
+    }
+    .cats {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin: 14px 0 18px;
+    }
+    .cats button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .cats button.active {
+      background: var(--gold);
+      color: #190d0d;
+      border-color: var(--gold);
+      font-weight: 700;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+    }
+    .menu-card {
+      background: rgba(39, 18, 19, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .menu-card img {
+      display: block;
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #2d1718;
+    }
+    .menu-body {
+      padding: 16px;
+    }
+    .menu-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+    .menu-name {
+      margin: 0 0 6px;
+      font-size: 19px;
+      color: var(--text);
+    }
+    .menu-desc {
+      margin: 0 0 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted-2);
+    }
+    .tag {
+      font-size: 11px;
+      color: var(--gold-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .price-row,
+    .size-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .price,
+    .size-label {
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .qty {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .qty button,
+    .qty-add {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--card-2);
+      color: var(--gold);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .qty span {
+      min-width: 18px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .oos {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .cart {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      background: rgba(27, 13, 14, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      backdrop-filter: blur(12px);
+      z-index: 20;
+    }
+    .cart-head,
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cart-items {
+      max-height: 180px;
+      overflow: auto;
+      margin: 12px 0;
+      padding-right: 4px;
+    }
+    .cart-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .cart-item:last-child {
+      border-bottom: 0;
+    }
+    .cart-meta {
+      color: var(--muted-2);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 10px 0 14px;
+    }
+    .place-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #1b1111;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .place-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 22px;
+      padding: 26px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .toast {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      background: #241315;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: 0.2s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (max-width: 760px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+      .shell {
+        padding-bottom: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Live Menu Ordering</div>
+      <h1 id="restaurant-name">Galaxy Restaurant</h1>
+      <p>Customers place the order here. Every order is written straight to Firebase so the owner dashboard updates immediately on its own device.</p>
+      <div class="toolbar">
+        <input id="cust-name" type="text" placeholder="Your name">
+        <input id="cust-phone" type="tel" placeholder="Phone number">
+        <input id="cust-table" type="text" placeholder="Table number">
+      </div>
+      <div class="status" id="menu-status">Waiting for menu sync...</div>
+    </section>
+
+    <div class="cats" id="cats"></div>
+    <section class="menu-grid" id="menu-grid"></section>
+  </div>
+
+  <aside class="cart">
+    <div class="cart-head">
+      <strong>Your order</strong>
+      <span id="cart-count">0 items</span>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-meta">Your cart is empty.</div>
+    </div>
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cart-total">Rs. 0</span>
+    </div>
+    <button class="place-btn" id="place-btn">Place Order</button>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+    <script src="./firebase-config.js"></script>
+  <script src="./app-data.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, onValue, push, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const config = window.GALAXY_FIREBASE_CONFIG;
+    const appInfo = window.GALAXY_APP;
+    const db = getDatabase(initializeApp(config));
+
+    const categories = ["all"].concat(window.GALAXY_CATEGORY_ORDER);
+    const categoryLabels = Object.assign({ all: "All" }, window.GALAXY_CATEGORY_LABELS);
+    const MENU = window.GALAXY_MENU.slice();
+    const defaultMenuState = window.GALAXY_DEFAULT_MENU_STATE;
+
+    const state = {
+      cart: {},
+      currentCat: "all",
+      menuState: defaultMenuState(),
+      orderInFlight: false
+    };
+
+    const menuGrid = document.getElementById("menu-grid");
+    const cats = document.getElementById("cats");
+    const cartItems = document.getElementById("cart-items");
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+    const placeBtn = document.getElementById("place-btn");
+    const menuStatus = document.getElementById("menu-status");
+    const restaurantName = document.getElementById("restaurant-name");
+
+    restaurantName.textContent = appInfo.restaurantName;
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function formatMoney(value) {
+      return "Rs. " + Number(value || 0);
+    }
+
+    function keyFor(itemId, sizeKey) {
+      return sizeKey ? itemId + "_" + sizeKey : String(itemId);
+    }
+
+    function readTableFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const table = params.get("table");
+      if (table) document.getElementById("cust-table").value = table;
+    }
+
+    function getAllMenuItems() {
+      const deleted = new Set(state.menuState.deletedIds || []);
+      return MENU.filter((item) => !deleted.has(item.id)).concat(state.menuState.customItems || []);
+    }
+
+    function getDisplayItem(item) {
+      const overrides = state.menuState.overrides || {};
+      const override = overrides[item.id] || {};
+      const next = JSON.parse(JSON.stringify(item));
+      next.inStock = override.inStock !== false;
+      if (next.sizes) {
+        Object.keys(next.sizes).forEach((sizeKey) => {
+          const customPrice = override["price_" + sizeKey];
+          if (customPrice !== undefined) next.sizes[sizeKey] = customPrice;
+        });
+      }
+      if (override.price !== undefined) next.price = override.price;
+      return next;
+    }
+
+    function activeItems() {
+      const items = getAllMenuItems().map(getDisplayItem);
+      return state.currentCat === "all" ? items : items.filter((item) => item.cat === state.currentCat);
+    }
+
+    function buildQtyControls(itemId, sizeKey) {
+      const key = keyFor(itemId, sizeKey);
+      const qty = state.cart[key] || 0;
+      if (!qty) return '<button class="qty-add" data-action="add" data-key="' + key + '">+</button>';
+      return '<div class="qty"><button data-action="remove" data-key="' + key + '">-</button><span>' + qty + '</span><button data-action="add" data-key="' + key + '">+</button></div>';
+    }
+
+    function renderCategories() {
+      cats.innerHTML = categories.map((cat) => {
+        const cls = cat === state.currentCat ? "active" : "";
+        return '<button class="' + cls + '" data-cat="' + cat + '">' + categoryLabels[cat] + "</button>";
+      }).join("");
+    }
+
+    function renderMenu() {
+      const items = activeItems();
+      if (!items.length) {
+        menuGrid.innerHTML = '<div class="empty">No menu items found.</div>';
+        return;
+      }
+
+      menuGrid.innerHTML = items.map((item) => {
+        const categoryTag = '<div class="tag">' + (categoryLabels[item.cat] || item.cat) + "</div>";
+        const oos = item.inStock ? "" : '<div class="oos">Out of stock</div>';
+        let controls = "";
+
+        if (item.sizes) {
+          controls = Object.keys(item.sizes).map((sizeKey) => [
+            '<div class="size-row">',
+            '<div><span class="size-label">' + sizeKey.toUpperCase() + '</span> <span class="menu-desc">' + formatMoney(item.sizes[sizeKey]) + "</span></div>",
+            item.inStock ? buildQtyControls(item.id, sizeKey) : '<span class="oos">Unavailable</span>',
+            "</div>"
+          ].join("")).join("");
+        } else {
+          controls = '<div class="price-row"><span class="price">' + formatMoney(item.price) + "</span>" + (item.inStock ? buildQtyControls(item.id, null) : '<span class="oos">Unavailable</span>') + "</div>";
+        }
+
+        return [
+          '<article class="menu-card">',
+          '<img src="' + item.img + '" alt="' + item.name + '" loading="lazy" onerror="this.style.opacity=0.25">',
+          '<div class="menu-body">',
+          '<div class="menu-head"><div><h2 class="menu-name">' + item.name + "</h2>" + categoryTag + "</div>" + oos + "</div>",
+          '<p class="menu-desc">' + item.desc + "</p>",
+          controls,
+          "</div>",
+          "</article>"
+        ].join("");
+      }).join("");
+    }
+
+    function getItemByKey(key) {
+      const [rawId, sizeKey] = key.split("_");
+      const item = getAllMenuItems().find((entry) => String(entry.id) === rawId);
+      if (!item) return null;
+      const display = getDisplayItem(item);
+      const price = sizeKey ? display.sizes[sizeKey] : display.price;
+      return { item: display, sizeKey: sizeKey || null, price };
+    }
+
+    function updateCart(action, key) {
+      const current = state.cart[key] || 0;
+      if (action === "add") state.cart[key] = current + 1;
+      else {
+        const next = current - 1;
+        if (next > 0) state.cart[key] = next;
+        else delete state.cart[key];
+      }
+      renderMenu();
+      renderCart();
+    }
+
+    function renderCart() {
+      const keys = Object.keys(state.cart);
+      const lines = [];
+      let totalQty = 0;
+      let totalPrice = 0;
+
+      keys.forEach((key) => {
+        const entry = getItemByKey(key);
+        if (!entry) return;
+        const qty = state.cart[key];
+        const lineTotal = qty * entry.price;
+        totalQty += qty;
+        totalPrice += lineTotal;
+        lines.push('<div class="cart-item"><div><strong>' + entry.item.name + '</strong><div class="cart-meta">' + (entry.sizeKey ? entry.sizeKey.toUpperCase() + " - " : "") + qty + " x " + formatMoney(entry.price) + '</div></div><strong>' + formatMoney(lineTotal) + "</strong></div>");
+      });
+
+      cartItems.innerHTML = lines.length ? lines.join("") : '<div class="cart-meta">Your cart is empty.</div>';
+      cartCount.textContent = totalQty + (totalQty === 1 ? " item" : " items");
+      cartTotal.textContent = formatMoney(totalPrice);
+      placeBtn.disabled = !lines.length || state.orderInFlight;
+    }
+
+    function buildOrderPayload() {
+      const customerName = document.getElementById("cust-name").value.trim();
+      const customerPhone = document.getElementById("cust-phone").value.trim();
+      const tableNumber = document.getElementById("cust-table").value.trim();
+
+      if (!customerName) {
+        toast("Enter customer name first.");
+        return null;
+      }
+      if (!tableNumber) {
+        toast("Enter table number first.");
+        return null;
+      }
+
+      const keys = Object.keys(state.cart);
+      if (!keys.length) {
+        toast("Add at least one item.");
+        return null;
+      }
+
+      const items = [];
+      let total = 0;
+      keys.forEach((key) => {
+        const entry = getItemByKey(key);
+        if (!entry) return;
+        const qty = state.cart[key];
+        const lineTotal = qty * entry.price;
+        total += lineTotal;
+        items.push({
+          id: entry.item.id,
+          name: entry.item.name,
+          size: entry.sizeKey,
+          price: entry.price,
+          qty
+        });
+      });
+
+      const now = new Date();
+      return {
+        orderNum: "GAL-" + String(Date.now()).slice(-6),
+        customerName,
+        customerPhone,
+        tableNumber,
+        items,
+        total,
+        status: "pending",
+        createdAt: now.toISOString(),
+        timestamp: now.toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      };
+    }
+
+    async function placeOrder() {
+      if (state.orderInFlight) return;
+      const payload = buildOrderPayload();
+      if (!payload) return;
+
+      state.orderInFlight = true;
+      placeBtn.disabled = true;
+      placeBtn.textContent = "Placing...";
+      try {
+        const orderRef = push(ref(db, "orders"));
+        await set(orderRef, payload);
+        state.cart = {};
+        renderMenu();
+        renderCart();
+        document.getElementById("success-sub").innerHTML = 'Order <strong>' + payload.orderNum + '</strong> placed for Table <strong>' + payload.tableNumber + '</strong>.<br>Total: <strong>' + formatMoney(payload.total) + '</strong><br><br>Placed at <strong>' + payload.timestamp + '</strong>.';
+        document.getElementById("success-screen").classList.add("show");
+        document.getElementById("cust-name").value = "";
+        document.getElementById("cust-phone").value = "";
+      } catch (error) {
+        console.error(error);
+        toast("Order failed. Check Firebase setup.");
+      } finally {
+        state.orderInFlight = false;
+        placeBtn.textContent = "Place Order";
+        renderCart();
+      }
+    }
+
+    function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) return;
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    cats.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-cat]");
+      if (!button) return;
+      state.currentCat = button.dataset.cat;
+      renderCategories();
+      renderMenu();
+    });
+
+    menuGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      updateCart(button.dataset.action, button.dataset.key);
+    });
+
+    placeBtn.addEventListener("click", placeOrder);
+
+    onValue(ref(db, "menuState"), (snapshot) => {
+      state.menuState = Object.assign(defaultMenuState(), snapshot.val() || {});
+      menuStatus.innerHTML = "Menu synced from <strong>Firebase Realtime Database</strong>.";
+      renderMenu();
+      renderCart();
+    }, (error) => {
+      console.error(error);
+      menuStatus.textContent = "Menu sync failed. Check Firebase setup.";
+    });
+
+    window.addEventListener("online", () => toast("Back online."));
+    window.addEventListener("offline", () => toast("Offline. Orders need internet."));
+
+    readTableFromUrl();
+    renderCategories();
+    renderMenu();
+    renderCart();
+    registerServiceWorker();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1176 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Restaurant Owner</title>
+  <link rel="manifest" href="./manifest.json">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #15090a;
+      --bg-soft: #231112;
+      --card: #2b1516;
+      --card-2: #341819;
+      --gold: #eda34c;
+      --gold-soft: #f4cd87;
+      --text: #f8ead4;
+      --muted: #c49f78;
+      --muted-2: #8d7260;
+      --ok: #56a07c;
+      --danger: #df5f5f;
+      --line: rgba(237, 163, 76, 0.18);
+      --radius: 18px;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(237, 163, 76, 0.15), transparent 30%),
+        linear-gradient(180deg, #140809 0%, #1d0d0f 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .login-wrap,
+    .app {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    .hidden { display: none !important; }
+    .login-card,
+    .panel,
+    .stat,
+    .order-card,
+    .menu-card {
+      background: rgba(40, 18, 19, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .login-card {
+      max-width: 420px;
+      margin: 8vh auto 0;
+      padding: 28px;
+    }
+    h1, h2, h3, h4, p { margin-top: 0; }
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+    .login-card input,
+    .menu-card input,
+    .menu-card select {
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--text);
+      outline: none;
+    }
+    .btn,
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #1b1010;
+    }
+    .btn-secondary {
+      background: rgba(237, 163, 76, 0.12);
+      color: var(--gold-soft);
+      border: 1px solid var(--line);
+    }
+    .btn-danger {
+      background: rgba(223, 95, 95, 0.15);
+      color: #ffc0c0;
+      border: 1px solid rgba(223, 95, 95, 0.28);
+    }
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .hero-main {
+      flex: 1 1 580px;
+      background: linear-gradient(135deg, rgba(237, 163, 76, 0.12), rgba(53, 25, 27, 0.92));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: start;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .stat {
+      padding: 18px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 18px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .orders {
+      display: grid;
+      gap: 12px;
+    }
+    .order-card {
+      padding: 16px;
+    }
+    .order-top,
+    .order-line,
+    .printer-row,
+    .menu-row,
+    .menu-price {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .order-top {
+      margin-bottom: 10px;
+      align-items: start;
+    }
+    .badge {
+      display: inline-flex;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.pending {
+      background: rgba(237, 163, 76, 0.15);
+      color: var(--gold);
+    }
+    .badge.done {
+      background: rgba(86, 160, 124, 0.15);
+      color: #9ee5c2;
+    }
+    .order-lines {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 0;
+      margin: 10px 0;
+    }
+    .order-line {
+      padding: 5px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .order-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .order-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+    .printer-row {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .printer-row:last-child {
+      border-bottom: 0;
+    }
+    .menu-list {
+      display: grid;
+      gap: 12px;
+      max-height: 840px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .menu-card {
+      padding: 14px;
+    }
+    .menu-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .menu-meta {
+      color: var(--muted-2);
+      font-size: 12px;
+    }
+    .menu-price {
+      margin-top: 10px;
+    }
+    .menu-price input {
+      max-width: 110px;
+      margin: 0;
+    }
+    .switch {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .hint,
+    .error {
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+    .hint { color: var(--muted); }
+    .error { color: #ffc0c0; }
+    #print-area { display: none; }
+    @media print {
+      body > *:not(#print-area) { display: none !important; }
+      #print-area {
+        display: block !important;
+        color: #000;
+        background: #fff;
+        font-family: monospace;
+        padding: 8px;
+        font-size: 12px;
+      }
+      .print-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+    }
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="login-wrap" id="login-wrap">
+    <div class="login-card">
+      <div class="eyebrow">Owner Access</div>
+      <h1 id="login-title">Galaxy Restaurant</h1>
+      <p class="hint">Sign in with the Firebase Authentication email and password you create during setup.</p>
+      <input id="login-email" type="email" placeholder="Owner email">
+      <input id="login-password" type="password" placeholder="Password">
+      <div style="display:grid; gap:10px; margin-top:14px;">
+        <button class="btn btn-primary" id="login-btn">Sign In</button>
+      </div>
+      <div class="error" id="login-error"></div>
+      <div class="hint" id="uid-hint"></div>
+    </div>
+  </section>
+
+  <main class="app hidden" id="app">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="eyebrow">Realtime Owner Dashboard</div>
+        <h1 id="owner-restaurant-name">Galaxy Restaurant</h1>
+        <p class="hint">Customer orders appear here as soon as they are written to Firebase Realtime Database.</p>
+        <div class="hint" id="owner-status">Waiting for Firebase...</div>
+        <div class="hint" id="menu-link"></div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-secondary" id="refresh-btn">Refresh Menu</button>
+        <button class="btn btn-secondary" id="print-all-btn">Print Pending</button>
+        <button class="btn btn-danger" id="logout-btn">Logout</button>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-label">Pending Orders</div>
+        <div class="stat-value" id="pending-count">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Completed Orders</div>
+        <div class="stat-value" id="done-count">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pending Value</div>
+        <div class="stat-value" id="pending-total">Rs. 0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Connected Printer</div>
+        <div class="stat-value" id="printer-state">No</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="stack">
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Pending Orders</h2>
+            <span class="badge pending" id="pending-badge">0 pending</span>
+          </div>
+          <div class="orders" id="pending-orders"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Completed Orders</h2>
+            <span class="badge done" id="done-badge">0 done</span>
+          </div>
+          <div class="orders" id="done-orders"></div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Printer</h2>
+          </div>
+          <div class="printer-row">
+            <div>
+              <strong id="printer-label">Not connected</strong>
+              <div class="hint">Use Chrome or Edge for Bluetooth thermal printing.</div>
+            </div>
+            <button class="btn btn-secondary" id="connect-printer-btn">Connect</button>
+          </div>
+          <div class="printer-row">
+            <label class="switch">
+              <input type="checkbox" id="auto-print-toggle">
+              <span>Auto print new pending orders</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Menu Manager</h2>
+            <span class="hint">Changes sync to customer page</span>
+          </div>
+          <div class="menu-list" id="menu-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="print-area"></div>
+
+    <script src="./firebase-config.js"></script>
+  <script src="./app-data.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, get, onValue, ref, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseApp = initializeApp(window.GALAXY_FIREBASE_CONFIG);
+    const auth = getAuth(firebaseApp);
+    const db = getDatabase(firebaseApp);
+    const MENU = window.GALAXY_MENU.slice();
+    const categoryLabels = window.GALAXY_CATEGORY_LABELS;
+    const defaultMenuState = window.GALAXY_DEFAULT_MENU_STATE;
+    const appInfo = window.GALAXY_APP;
+
+    const printerProfiles = [
+      { service: "000018f0-0000-1000-8000-00805f9b34fb", characteristic: "00002af1-0000-1000-8000-00805f9b34fb" },
+      { service: "6e400001-b5a4-f393-e0a9-e50e24dcca9e", characteristic: "6e400002-b5a4-f393-e0a9-e50e24dcca9e" },
+      { service: "0000ff00-0000-1000-8000-00805f9b34fb", characteristic: "0000ff02-0000-1000-8000-00805f9b34fb" },
+      { service: "00001101-0000-1000-8000-00805f9b34fb", characteristic: "00001102-0000-1000-8000-00805f9b34fb" }
+    ];
+
+    const state = {
+      user: null,
+      isAdmin: false,
+      orders: [],
+      menuState: defaultMenuState(),
+      autoPrint: localStorage.getItem("gmf_autoprint") === "1",
+      printedOrderIds: JSON.parse(localStorage.getItem("gmf_printed_orders") || "{}"),
+      printQueue: JSON.parse(localStorage.getItem("gmf_print_queue") || "[]"),
+      knownPendingIds: null,
+      btDevice: null,
+      btChar: null,
+      printerConnected: false,
+      reconnecting: false,
+      reconnectTimer: null,
+      lastPrinterName: localStorage.getItem("gmf_printer_name") || "",
+      ordersUnsub: null,
+      menuUnsub: null,
+      wakeLock: null,
+      audioCtx: null,
+      printBusy: false
+    };
+
+    const loginWrap = document.getElementById("login-wrap");
+    const app = document.getElementById("app");
+    const loginError = document.getElementById("login-error");
+    const uidHint = document.getElementById("uid-hint");
+    const ownerStatus = document.getElementById("owner-status");
+    const menuList = document.getElementById("menu-list");
+    const printerLabel = document.getElementById("printer-label");
+    const autoPrintToggle = document.getElementById("auto-print-toggle");
+    const connectPrinterBtn = document.getElementById("connect-printer-btn");
+
+    document.getElementById("login-title").textContent = appInfo.restaurantName;
+    document.getElementById("owner-restaurant-name").textContent = appInfo.restaurantName;
+    document.getElementById("menu-link").innerHTML = 'Customer page: <a style="color:#f4cd87" href="' + appInfo.customerPage + '" target="_blank" rel="noreferrer">' + appInfo.customerPage + "</a>";
+    autoPrintToggle.checked = state.autoPrint;
+
+    function persistPrintState() {
+      localStorage.setItem("gmf_autoprint", state.autoPrint ? "1" : "0");
+      localStorage.setItem("gmf_printed_orders", JSON.stringify(state.printedOrderIds));
+      localStorage.setItem("gmf_print_queue", JSON.stringify(state.printQueue.slice(-100)));
+      if (state.lastPrinterName) localStorage.setItem("gmf_printer_name", state.lastPrinterName);
+      else localStorage.removeItem("gmf_printer_name");
+    }
+
+    function formatMoney(value) {
+      return "Rs. " + Number(value || 0);
+    }
+
+    function formatOrderDate(value) {
+      if (!value) return "Unknown time";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function toast(message) {
+      ownerStatus.textContent = message;
+    }
+
+    function armAudio() {
+      if (state.audioCtx) return;
+      const unlock = () => {
+        try {
+          state.audioCtx = state.audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+          state.audioCtx.resume().catch(() => {});
+        } catch (error) {}
+        document.removeEventListener("pointerdown", unlock);
+        document.removeEventListener("keydown", unlock);
+      };
+      document.addEventListener("pointerdown", unlock, { once: true });
+      document.addEventListener("keydown", unlock, { once: true });
+    }
+
+    function playBell() {
+      try {
+        const ctx = state.audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        state.audioCtx = ctx;
+        const tones = [
+          [0, 880, 0.35],
+          [0.08, 1320, 0.25],
+          [0.18, 1760, 0.15],
+          [0.32, 720, 0.2]
+        ];
+        tones.forEach(([delay, freq, vol]) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + delay;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.linearRampToValueAtTime(vol, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.1);
+          osc.start(start);
+          osc.stop(start + 1.15);
+        });
+      } catch (error) {}
+      if (navigator.vibrate) {
+        try { navigator.vibrate([250, 80, 250, 80, 450]); } catch (error) {}
+      }
+    }
+
+    async function ensureWakeLock() {
+      if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+      try {
+        state.wakeLock = await navigator.wakeLock.request("screen");
+        state.wakeLock.addEventListener("release", () => {
+          state.wakeLock = null;
+        });
+      } catch (error) {}
+    }
+
+    function releaseWakeLock() {
+      if (!state.wakeLock) return;
+      state.wakeLock.release().catch(() => {});
+      state.wakeLock = null;
+    }
+
+    async function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) return null;
+      try {
+        return await navigator.serviceWorker.register("./sw.js");
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+
+    async function requestNotifications() {
+      if (!("Notification" in window) || Notification.permission !== "default") return Notification.permission;
+      try {
+        return await Notification.requestPermission();
+      } catch (error) {
+        return Notification.permission;
+      }
+    }
+
+    function clearSubscriptions() {
+      if (state.ordersUnsub) { state.ordersUnsub(); state.ordersUnsub = null; }
+      if (state.menuUnsub) { state.menuUnsub(); state.menuUnsub = null; }
+    }
+
+    function getAllMenuItems() {
+      const deleted = new Set(state.menuState.deletedIds || []);
+      return MENU.filter((item) => !deleted.has(item.id)).concat(state.menuState.customItems || []);
+    }
+
+    function getDisplayItem(item) {
+      const overrides = state.menuState.overrides || {};
+      const override = overrides[item.id] || {};
+      const next = JSON.parse(JSON.stringify(item));
+      next.inStock = override.inStock !== false;
+      if (next.sizes) {
+        Object.keys(next.sizes).forEach((sizeKey) => {
+          if (override["price_" + sizeKey] !== undefined) next.sizes[sizeKey] = override["price_" + sizeKey];
+        });
+      } else if (override.price !== undefined) {
+        next.price = override.price;
+      }
+      return next;
+    }
+
+    async function saveMenuState() {
+      await set(ref(db, "menuState"), state.menuState);
+    }
+
+    function ensureOverride(itemId) {
+      if (!state.menuState.overrides[itemId]) state.menuState.overrides[itemId] = {};
+      return state.menuState.overrides[itemId];
+    }
+
+    function renderMenuManager() {
+      const items = getAllMenuItems().map(getDisplayItem);
+      if (!items.length) {
+        menuList.innerHTML = '<div class="empty">No menu items found.</div>';
+        return;
+      }
+
+      menuList.innerHTML = items.map((item) => {
+        const priceBlock = item.sizes
+          ? Object.keys(item.sizes).map((sizeKey) => [
+              '<div class="menu-price">',
+              "<span>" + sizeKey.toUpperCase() + "</span>",
+              '<input type="number" min="0" data-type="price" data-item-id="' + item.id + '" data-size-key="' + sizeKey + '" value="' + item.sizes[sizeKey] + '">',
+              "</div>"
+            ].join(""))
+          : [
+              '<div class="menu-price">',
+              "<span>Price</span>",
+              '<input type="number" min="0" data-type="price" data-item-id="' + item.id + '" value="' + item.price + '">',
+              "</div>"
+            ].join("");
+
+        return [
+          '<article class="menu-card">',
+          '<div class="menu-head">',
+          "<div>",
+          "<strong>" + item.name + "</strong>",
+          '<div class="menu-meta">' + (categoryLabels[item.cat] || item.cat) + "</div>",
+          "</div>",
+          '<label class="switch"><input type="checkbox" data-type="stock" data-item-id="' + item.id + '"' + (item.inStock ? " checked" : "") + '><span>' + (item.inStock ? "In stock" : "Out of stock") + "</span></label>",
+          "</div>",
+          priceBlock.join(""),
+          "</article>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderOrderList(targetId, orders, kind) {
+      const el = document.getElementById(targetId);
+      if (!orders.length) {
+        el.innerHTML = '<div class="empty">No ' + kind + " orders yet.</div>";
+        return;
+      }
+
+      el.innerHTML = orders.map((order) => {
+        const lines = (order.items || []).map((item) => {
+          const label = item.qty + " x " + item.name + (item.size ? " (" + String(item.size).toUpperCase() + ")" : "");
+          return '<div class="order-line"><span>' + label + "</span><span>" + formatMoney(item.price * item.qty) + "</span></div>";
+        }).join("");
+
+        const actions = kind === "pending"
+          ? '<button class="btn btn-primary" data-action="done" data-id="' + order.id + '">Mark Done</button><button class="btn btn-secondary" data-action="print" data-id="' + order.id + '">Print</button>'
+          : '<button class="btn btn-secondary" data-action="print" data-id="' + order.id + '">Print</button>';
+
+        return [
+          '<article class="order-card">',
+          '<div class="order-top">',
+          "<div>",
+          "<strong>" + order.orderNum + "</strong>",
+          '<div class="order-meta">Table ' + order.tableNumber + (order.customerName ? " - " + order.customerName : "") + (order.customerPhone ? " - " + order.customerPhone : "") + "</div>",
+          '<div class="order-meta">Placed: ' + formatOrderDate(order.createdAt || order.timestamp) + "</div>",
+          order.doneAt ? '<div class="order-meta">Done: ' + formatOrderDate(order.doneAt) + "</div>" : "",
+          "</div>",
+          '<span class="badge ' + order.status + '">' + order.status.toUpperCase() + "</span>",
+          "</div>",
+          '<div class="order-lines">' + lines + "</div>",
+          '<div class="order-top"><strong>Total</strong><strong>' + formatMoney(order.total) + "</strong></div>",
+          '<div class="order-actions">' + actions + "</div>",
+          "</article>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderStats() {
+      const pending = state.orders.filter((order) => order.status === "pending");
+      const done = state.orders.filter((order) => order.status === "done");
+      const pendingTotal = pending.reduce((sum, order) => sum + Number(order.total || 0), 0);
+
+      document.getElementById("pending-count").textContent = String(pending.length);
+      document.getElementById("done-count").textContent = String(done.length);
+      document.getElementById("pending-total").textContent = formatMoney(pendingTotal);
+      document.getElementById("pending-badge").textContent = pending.length + " pending";
+      document.getElementById("done-badge").textContent = done.length + " done";
+      document.getElementById("printer-state").textContent = state.printerConnected ? "Yes" : "No";
+
+      renderOrderList("pending-orders", pending, "pending");
+      renderOrderList("done-orders", done, "done");
+      updatePrinterUi();
+    }
+
+    function toOrdersArray(snapshotValue) {
+      const raw = snapshotValue || {};
+      return Object.keys(raw).map((id) => Object.assign({ id }, raw[id])).sort((a, b) => {
+        return new Date(b.createdAt || b.timestamp || 0).getTime() - new Date(a.createdAt || a.timestamp || 0).getTime();
+      });
+    }
+
+    async function markDone(orderId) {
+      await update(ref(db, "orders/" + orderId), {
+        status: "done",
+        doneAt: new Date().toISOString()
+      });
+    }
+
+    function buildReceiptMarkup(orders) {
+      const rows = orders.map((order) => {
+        const lineItems = (order.items || []).map((item) => {
+          const label = item.qty + "x " + item.name + (item.size ? " (" + String(item.size).toUpperCase() + ")" : "");
+          return '<div class="print-row"><span>' + label + "</span><span>" + formatMoney(item.qty * item.price) + "</span></div>";
+        }).join("");
+
+        return [
+          '<div style="margin-bottom:14px; page-break-inside:avoid;">',
+          '<div class="print-row"><strong>' + order.orderNum + "</strong><strong>Table " + order.tableNumber + "</strong></div>",
+          '<div>' + (order.customerName || "Walk-in") + (order.customerPhone ? " - " + order.customerPhone : "") + "</div>",
+          '<div>' + formatOrderDate(order.createdAt || order.timestamp) + "</div>",
+          "<hr>",
+          lineItems,
+          "<hr>",
+          '<div class="print-row"><strong>Total</strong><strong>' + formatMoney(order.total) + "</strong></div>",
+          "</div>"
+        ].join("");
+      }).join("");
+
+      return '<div style="text-align:center;font-size:18px;font-weight:700;">' + appInfo.restaurantName + '</div><div style="text-align:center;margin-bottom:8px;">Kitchen Ticket</div>' + rows;
+    }
+
+    function fallbackPrint(orders) {
+      const printArea = document.getElementById("print-area");
+      printArea.innerHTML = buildReceiptMarkup(orders);
+      printArea.style.display = "block";
+      window.print();
+      printArea.style.display = "none";
+    }
+
+    function escInit() { return [0x1b, 0x40]; }
+    function escBold(on) { return [0x1b, 0x45, on ? 1 : 0]; }
+    function escAlign(value) { return [0x1b, 0x61, value]; }
+    function escFeedLines(lines) { return [0x1b, 0x64, lines]; }
+    function escCut() { return [0x1d, 0x56, 0x41, 0x00]; }
+    function escFontSize(width, height) { return [0x1d, 0x21, ((width - 1) << 4) | (height - 1)]; }
+
+    function textToBytes(text) {
+      const bytes = [];
+      for (let index = 0; index < text.length; index += 1) {
+        const code = text.charCodeAt(index);
+        if (code < 128) bytes.push(code);
+        else if (code < 2048) bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+        else bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+      }
+      return bytes;
+    }
+
+    function buildEscPosReceipt(orders) {
+      const bytes = [];
+      const push = (list) => list.forEach((value) => bytes.push(value));
+      const line = (text) => push(textToBytes(text + "\n"));
+      const dash = () => line("--------------------------------");
+
+      push(escInit());
+      push(escAlign(1));
+      push(escFontSize(2, 2));
+      push(escBold(true));
+      line(appInfo.restaurantName.toUpperCase());
+      push(escFontSize(1, 1));
+      push(escBold(false));
+      line("Kitchen Ticket");
+      line(new Date().toLocaleString("en-IN"));
+      push(escAlign(0));
+      dash();
+
+      orders.forEach((order, orderIndex) => {
+        push(escBold(true));
+        line("Order: " + order.orderNum);
+        push(escBold(false));
+        line("Table: " + order.tableNumber);
+        if (order.customerName) line("Name : " + order.customerName);
+        if (order.customerPhone) line("Phone: " + order.customerPhone);
+        line("Time : " + formatOrderDate(order.createdAt || order.timestamp));
+        dash();
+        (order.items || []).forEach((item) => {
+          const name = item.qty + "x " + item.name + (item.size ? " (" + String(item.size).toUpperCase() + ")" : "");
+          const price = "Rs." + (item.qty * item.price);
+          const pad = Math.max(1, 32 - name.length - price.length);
+          line(name + " ".repeat(pad) + price);
+        });
+        dash();
+        push(escBold(true));
+        line("TOTAL: Rs." + order.total);
+        push(escBold(false));
+        if (orderIndex < orders.length - 1) line("");
+      });
+
+      push(escAlign(1));
+      line("");
+      line("Kitchen Copy");
+      push(escFeedLines(4));
+      push(escCut());
+      return new Uint8Array(bytes);
+    }
+
+    async function findWritableCharacteristic(server) {
+      for (const profile of printerProfiles) {
+        try {
+          const service = await server.getPrimaryService(profile.service);
+          return await service.getCharacteristic(profile.characteristic);
+        } catch (error) {}
+      }
+
+      const services = await server.getPrimaryServices();
+      for (const service of services) {
+        const chars = await service.getCharacteristics();
+        for (const characteristic of chars) {
+          if (characteristic.properties.write || characteristic.properties.writeWithoutResponse) return characteristic;
+        }
+      }
+
+      throw new Error("No writable printer characteristic found");
+    }
+
+    async function sendBytesToPrinter(data) {
+      if (!state.btChar) throw new Error("No printer characteristic");
+      const chunkSize = 180;
+      for (let index = 0; index < data.length; index += chunkSize) {
+        await state.btChar.writeValue(data.slice(index, index + chunkSize));
+        await new Promise((resolve) => setTimeout(resolve, 35));
+      }
+    }
+
+    function updatePrinterUi() {
+      connectPrinterBtn.textContent = state.printerConnected ? "Disconnect" : (state.reconnecting ? "Reconnecting..." : "Connect");
+      printerLabel.textContent = state.printerConnected
+        ? (state.btDevice && state.btDevice.name ? state.btDevice.name : state.lastPrinterName || "Bluetooth printer")
+        : (state.lastPrinterName ? "Last printer: " + state.lastPrinterName : "Not connected");
+      connectPrinterBtn.disabled = state.reconnecting;
+    }
+
+    function bindPrinterDisconnect(device) {
+      if (!device || device._gmfBound) return;
+      device._gmfBound = true;
+      device.addEventListener("gattserverdisconnected", () => {
+        state.printerConnected = false;
+        state.btChar = null;
+        updatePrinterUi();
+        if (state.lastPrinterName) scheduleReconnect();
+      });
+    }
+
+    async function connectPrinterDevice(device, silent) {
+      const server = device.gatt.connected ? device.gatt : await device.gatt.connect();
+      const characteristic = await findWritableCharacteristic(server);
+      state.btDevice = device;
+      state.btChar = characteristic;
+      state.printerConnected = true;
+      state.reconnecting = false;
+      state.lastPrinterName = device.name || state.lastPrinterName;
+      clearTimeout(state.reconnectTimer);
+      bindPrinterDisconnect(device);
+      updatePrinterUi();
+      persistPrintState();
+      if (!silent) toast("Printer connected.");
+      if (state.autoPrint && state.printQueue.length) processPrintQueue();
+      return true;
+    }
+
+    async function restorePrinterIfPossible() {
+      if (!navigator.bluetooth || !navigator.bluetooth.getDevices || !state.lastPrinterName || state.printerConnected) return false;
+      try {
+        const devices = await navigator.bluetooth.getDevices();
+        const match = devices.find((device) => device.name === state.lastPrinterName);
+        if (!match) return false;
+        await connectPrinterDevice(match, true);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function scheduleReconnect() {
+      if (state.reconnecting || !state.lastPrinterName) return;
+      state.reconnecting = true;
+      updatePrinterUi();
+      let attempts = 0;
+
+      const tryReconnect = async () => {
+        attempts += 1;
+        const restored = await restorePrinterIfPossible();
+        if (restored) {
+          state.reconnecting = false;
+          updatePrinterUi();
+          toast("Printer reconnected.");
+          return;
+        }
+        if (attempts >= 12) {
+          state.reconnecting = false;
+          updatePrinterUi();
+          toast("Printer reconnect failed. Tap Connect when ready.");
+          return;
+        }
+        state.reconnectTimer = window.setTimeout(tryReconnect, 3000);
+      };
+
+      state.reconnectTimer = window.setTimeout(tryReconnect, 1500);
+    }
+
+    async function printOrders(orders, options = {}) {
+      if (!orders.length) return;
+      const allowFallback = options.allowFallback !== false;
+      if (state.printerConnected && state.btChar) {
+        await sendBytesToPrinter(buildEscPosReceipt(orders));
+        if (!options.silent) toast("Printed " + orders.length + " order(s).");
+        return;
+      }
+
+      if (allowFallback) {
+        fallbackPrint(orders);
+        if (!options.silent) toast("Browser print opened.");
+        return;
+      }
+
+      throw new Error("Printer unavailable");
+    }
+
+    function queuePrint(order) {
+      if (!order || !order.id || state.printedOrderIds[order.id]) return;
+      if (!state.printQueue.includes(order.id)) state.printQueue.push(order.id);
+      persistPrintState();
+      processPrintQueue();
+    }
+
+    async function processPrintQueue() {
+      if (state.printBusy || !state.autoPrint || !state.printQueue.length) return;
+      state.printBusy = true;
+      try {
+        if (!state.printerConnected) await restorePrinterIfPossible();
+        if (!state.printerConnected) return;
+
+        while (state.printQueue.length && state.printerConnected) {
+          const nextId = state.printQueue[0];
+          const order = state.orders.find((entry) => entry.id === nextId);
+          if (!order) {
+            state.printQueue.shift();
+            persistPrintState();
+            continue;
+          }
+          await printOrders([order], { allowFallback: false, silent: true });
+          state.printedOrderIds[nextId] = Date.now();
+          state.printQueue.shift();
+          persistPrintState();
+          toast("Auto-printed " + order.orderNum + ".");
+          await new Promise((resolve) => setTimeout(resolve, 120));
+        }
+      } catch (error) {
+        console.error(error);
+        if (!state.printerConnected) scheduleReconnect();
+      } finally {
+        state.printBusy = false;
+      }
+    }
+
+    async function togglePrinter() {
+      if (state.printerConnected && state.btDevice) {
+        try {
+          if (state.btDevice.gatt.connected) state.btDevice.gatt.disconnect();
+        } catch (error) {}
+        clearTimeout(state.reconnectTimer);
+        state.reconnecting = false;
+        state.printerConnected = false;
+        state.btChar = null;
+        state.btDevice = null;
+        updatePrinterUi();
+        toast("Printer disconnected.");
+        return;
+      }
+
+      if (!navigator.bluetooth) {
+        toast("Use Chrome or Edge for Bluetooth printing.");
+        return;
+      }
+
+      try {
+        const device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: printerProfiles.map((profile) => profile.service)
+        });
+        await connectPrinterDevice(device, false);
+      } catch (error) {
+        console.error(error);
+        toast(error && error.name === "NotFoundError" ? "Printer selection cancelled." : "Printer connection failed.");
+      }
+    }
+
+    function showOrderAlert(newOrders) {
+      if (!newOrders.length) return;
+      const latest = newOrders[newOrders.length - 1];
+      const message = newOrders.length + " new order" + (newOrders.length > 1 ? "s" : "") + " - Table " + latest.tableNumber + " - " + formatMoney(latest.total);
+      toast(message);
+      playBell();
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        if (document.visibilityState === "visible") {
+          try {
+            new Notification(appInfo.restaurantName + " - New Order", {
+              body: message,
+              tag: "gmf-live-order",
+              renotify: true
+            });
+          } catch (error) {}
+        }
+        navigator.serviceWorker.ready.then((registration) => {
+          if (!registration.active) return;
+          registration.active.postMessage({
+            type: "SHOW_ORDER_ALERT",
+            title: appInfo.restaurantName + " - New Order",
+            body: message,
+            url: "./owner.html"
+          });
+        }).catch(() => {});
+      }
+
+      if (state.autoPrint) newOrders.forEach(queuePrint);
+    }
+
+    async function syncAdminState(user) {
+      if (!user) {
+        clearSubscriptions();
+        state.user = null;
+        state.isAdmin = false;
+        state.orders = [];
+        state.menuState = defaultMenuState();
+        state.knownPendingIds = null;
+        loginWrap.classList.remove("hidden");
+        app.classList.add("hidden");
+        loginError.textContent = "";
+        uidHint.textContent = "";
+        return;
+      }
+
+      state.user = user;
+      const snapshot = await get(ref(db, "admins/" + user.uid));
+      state.isAdmin = snapshot.val() === true;
+
+      if (!state.isAdmin) {
+        clearSubscriptions();
+        loginError.textContent = "This account is not marked as an owner admin yet.";
+        uidHint.textContent = "Add /admins/" + user.uid + " = true in Realtime Database, then refresh.";
+        loginWrap.classList.remove("hidden");
+        app.classList.add("hidden");
+        return;
+      }
+
+      loginError.textContent = "";
+      uidHint.textContent = "";
+      loginWrap.classList.add("hidden");
+      app.classList.remove("hidden");
+      toast("Owner dashboard connected to Firebase.");
+      await requestNotifications();
+      await ensureWakeLock();
+      await restorePrinterIfPossible();
+
+      clearSubscriptions();
+
+      state.ordersUnsub = onValue(ref(db, "orders"), (snapshotValue) => {
+        state.orders = toOrdersArray(snapshotValue.val());
+        const pending = state.orders.filter((order) => order.status === "pending");
+        const currentIds = new Set(pending.map((order) => order.id));
+        if (state.knownPendingIds !== null) {
+          const freshOrders = pending.filter((order) => !state.knownPendingIds.has(order.id));
+          if (freshOrders.length) showOrderAlert(freshOrders);
+        }
+        state.knownPendingIds = currentIds;
+        renderStats();
+        if (state.autoPrint && state.printQueue.length) processPrintQueue();
+      });
+
+      state.menuUnsub = onValue(ref(db, "menuState"), (snapshotValue) => {
+        state.menuState = Object.assign(defaultMenuState(), snapshotValue.val() || {});
+        renderMenuManager();
+      });
+    }
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      loginError.textContent = "";
+      uidHint.textContent = "";
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          document.getElementById("login-email").value.trim(),
+          document.getElementById("login-password").value
+        );
+      } catch (error) {
+        console.error(error);
+        loginError.textContent = error.message;
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    document.getElementById("refresh-btn").addEventListener("click", async () => {
+      renderMenuManager();
+      renderStats();
+      await restorePrinterIfPossible();
+      toast("Dashboard refreshed.");
+    });
+
+    document.getElementById("print-all-btn").addEventListener("click", async () => {
+      const pending = state.orders.filter((order) => order.status === "pending");
+      if (!pending.length) {
+        toast("No pending orders to print.");
+        return;
+      }
+      try {
+        await printOrders(pending);
+      } catch (error) {
+        fallbackPrint(pending);
+      }
+    });
+
+    connectPrinterBtn.addEventListener("click", togglePrinter);
+    autoPrintToggle.addEventListener("change", (event) => {
+      state.autoPrint = event.target.checked;
+      persistPrintState();
+      if (state.autoPrint) processPrintQueue();
+      toast(state.autoPrint ? "Auto print enabled." : "Auto print disabled.");
+    });
+
+    document.body.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      const order = state.orders.find((entry) => entry.id === button.dataset.id);
+      if (!order) return;
+      if (button.dataset.action === "done") await markDone(order.id);
+      if (button.dataset.action === "print") await printOrders([order]);
+    });
+
+    menuList.addEventListener("change", async (event) => {
+      const input = event.target;
+      const itemId = Number(input.dataset.itemId);
+      if (!itemId) return;
+
+      if (input.dataset.type === "stock") ensureOverride(itemId).inStock = input.checked;
+      if (input.dataset.type === "price") {
+        const value = Number(input.value || 0);
+        const override = ensureOverride(itemId);
+        if (input.dataset.sizeKey) override["price_" + input.dataset.sizeKey] = value;
+        else override.price = value;
+      }
+
+      await saveMenuState();
+      renderMenuManager();
+      toast("Menu synced to Firebase.");
+    });
+
+    document.addEventListener("visibilitychange", async () => {
+      if (document.visibilityState === "visible") {
+        await ensureWakeLock();
+        await restorePrinterIfPossible();
+        if (state.autoPrint && state.printQueue.length) processPrintQueue();
+      } else {
+        releaseWakeLock();
+      }
+    });
+
+    window.addEventListener("online", () => {
+      if (state.autoPrint && state.printQueue.length) processPrintQueue();
+      restorePrinterIfPossible();
+    });
+
+    armAudio();
+    registerServiceWorker();
+    onAuthStateChanged(auth, syncAdminState);
+  </script>
+</body>
+</html>
